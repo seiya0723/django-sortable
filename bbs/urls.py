@@ -4,5 +4,6 @@ from . import views
 app_name    = "bbs"
 urlpatterns = [
     path('', views.index, name="index"),
+    path('sort/', views.sort, name="sort"),
 ]
 

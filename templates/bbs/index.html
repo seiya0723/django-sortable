@@ -18,6 +18,7 @@
 
         {# ここが投稿されたデータの表示領域 #}
 
+
         <table class="table">
             <thead>
                 <tr>
@@ -28,12 +29,21 @@
             <tbody class="sort_area">
                 {% for topic in topics %}
                 <tr>
-                    <td>{{ topic.id }}</td>
+                    <td class="topic_id">{{ topic.id }}</td>
                     <td>{{ topic.comment }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
+        {# TODO: ここに順番確定ボタンを用意する。 #}
+
+
+        <form id="sort_form" action="">
+
+            {% csrf_token %}
+            <input id="sort_submit" type="button" value="順番確定">
+        </form>
 
     </main>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -44,9 +54,70 @@ for (const area of sort_areas ){
     new Sortable(area, {
         animation: 150,
         ghostClass: 'dragging',
-        onEnd: function(){ console.log("ソート完了") },
+        onEnd: function(){
+
+                // TODO:ここでAjaxを発動、topic.idを上から順番に取得してリストにして送信。
+                // TODO: Django側はrequest.POST.getlist()を発動、順番通りにsortを書き換えていく。
+
+                console.log("ソート完了") 
+
+
+        },
     });
 }
+
+
+
+
+
+const sort_submit   = document.querySelector("#sort_submit");
+
+
+
+sort_submit.addEventListener("click", () => {
+
+    const topic_ids     = document.querySelectorAll(".topic_id");
+    const id    = [];
+    for (const topic_id of topic_ids){
+            id.push( topic_id.textContent );
+    }
+
+
+    const form      = document.querySelector("#sort_form");
+    const body      = new FormData(form);
+
+
+    for (const i of id){
+        body.append("id", i);
+    }
+    
+    const url       = "sort/";
+    const method    = "post";
+
+
+    // fetchを使用してPOSTリクエストを送信
+    fetch( url, { method , body } )
+    .then( response => {
+        // レスポンスのステータスコードが200番代ではないとき、↓を実行。
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then( data => {
+        location.reload();
+    })
+    .catch( error => {
+        // .then内でエラーが起きているとき、実行(throw new Error()も含む)
+        console.log(error);
+    });
+
+
+
+})
+
+
+
 </script>
 
 
